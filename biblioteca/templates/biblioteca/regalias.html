@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regalías | Mashic Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 1.5rem; padding: 1.5rem; }
+        
+        /* Badges de estado */
+        .badge-pendiente { background: rgba(234,179,8,0.15); color: #EAB308; border: 1px solid rgba(234,179,8,0.3); }
+        .badge-pagado { background: rgba(34,197,94,0.15); color: #22C55E; border: 1px solid rgba(34,197,94,0.3); }
+        
+        /* Progress bar morada */
+        .progress-bar-bg { background: rgba(255,255,255,0.06); border-radius: 999px; height: 4px; }
+        .progress-bar-fill { background: linear-gradient(90deg, #8b5cf6, #d946ef); border-radius: 999px; height: 4px; transition: width 1s ease; }
+
+        /* Efecto de Ondas Suaves, Continuas y Difuminadas */
+        .waves-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: 100px; 
+            margin-bottom: 2rem; 
+            background: transparent; 
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+        .wave { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: 0 bottom; transform-origin: center bottom; }
+        .wave1 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%238b5cf6' opacity='0.3'/%3E%3C/svg%3E"); animation: move-waves 15s linear infinite; }
+        .wave2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23d946ef' opacity='0.5'/%3E%3C/svg%3E"); animation: move-waves 10s linear infinite reverse; }
+        .wave3 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23a855f7' opacity='0.8'/%3E%3C/svg%3E"); animation: move-waves 20s linear infinite; }
+        @keyframes move-waves { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    </style>
+</head>
+<body class="bg-[#050505] text-white min-h-screen pb-16 overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="p-8 flex justify-between items-center max-w-6xl mx-auto mb-4">
+        <div class="flex items-center gap-3">
+          <div class="group relative flex items-center justify-center">
+            <svg class="w-9 h-9 transform transition-transform group-hover:scale-105" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="10" fill="#0A0A0A"/>
+                <rect x="3.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay:0.1s"/>
+                <rect x="9.0" y="6"  width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay:0.2s"/>
+                <rect x="14.5" y="12" width="3" height="12" rx="1.5" fill="#a855f7" class="animate-pulse" style="animation-delay:0.3s"/>
+                <rect x="20.0" y="6"  width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay:0.4s"/>
+                <rect x="25.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay:0.5s"/>
+            </svg>
+            <div class="absolute inset-0 bg-[#8b5cf6]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+            <a href="{% url 'lista_canciones' %}" class="text-lg font-bold tracking-tight hover:text-[#8b5cf6] transition-colors">Mashic<span class="text-[#8b5cf6]">Music</span></a>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Hola, {{ request.session.usuario_nombre }}</span>
+            <a href="{% url 'mi_biblioteca' %}" class="text-zinc-500 hover:text-white transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Mi Biblioteca</a>
+            <a href="{% url 'regalias' %}" class="text-[#8b5cf6] uppercase text-[10px] tracking-[0.2em] font-medium">Regalías</a>
+            <a href="{% url 'cerrar_sesion' %}" class="text-zinc-500 hover:text-red-500 transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Salir</a>
+        </div>
+    </nav>
+
+    <!-- Ondas animadas -->
+    <div class="waves-wrapper">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+
+    <div class="container mx-auto max-w-6xl px-6">
+
+        <!-- Header -->
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <p class="text-zinc-600 text-[10px] uppercase tracking-[0.25em] mb-2">Panel de</p>
+                <h1 class="text-5xl font-bold tracking-tight">Regalías</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-zinc-600 text-xs mb-1">Tarifa por stream válido</p>
+                <p class="text-[#8b5cf6] text-2xl font-bold">$0.005</p>
+                <p class="text-zinc-700 text-[10px]">mínimo 30 segundos escuchados</p>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+            <div class="stat-card">
+                <p class="text-zinc-600 text-[10px] uppercase tracking-widest mb-3">Streams válidos este mes</p>
+                <p class="text-4xl font-bold text-white">{{ streams_mes }}</p>
+                <p class="text-zinc-600 text-xs mt-2">reproducciones ≥ 30 seg</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-zinc-600 text-[10px] uppercase tracking-widest mb-3">Ingresos estimados</p>
+                <p class="text-4xl font-bold text-[#8b5cf6]">${{ ingresos_mes }}</p>
+                <p class="text-zinc-600 text-xs mt-2">este mes · {{ mes_actual }}</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-zinc-600 text-[10px] uppercase tracking-widest mb-3">Total histórico</p>
+                <p class="text-4xl font-bold text-white">${{ total_historico }}</p>
+                <p class="text-zinc-600 text-xs mt-2">todos los meses liquidados</p>
+            </div>
+        </div>
+
+        <!-- Gráficas -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <div class="glass-card rounded-[2rem] p-8">
+                <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-6">Ingresos por mes</p>
+                {% if streams_mes > 0 or total_historico > 0 %}
+                <div class="relative" style="height:220px">
+                    <canvas id="chartIngresos"></canvas>
+                </div>
+                {% else %}
+                <div class="flex items-center justify-center" style="height:220px">
+                    <p class="text-zinc-700 text-sm">Sin liquidaciones aún</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="glass-card rounded-[2rem] p-8">
+                <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-6">Streams por álbum este mes</p>
+                {% if rendimiento_albumes %}
+                <div class="relative" style="height:220px">
+                    <canvas id="chartAlbumes"></canvas>
+                </div>
+                {% else %}
+                <div class="flex items-center justify-center" style="height:220px">
+                    <p class="text-zinc-700 text-sm">Sin streams este mes</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Rendimiento por álbum -->
+        <div class="glass-card rounded-[2rem] p-8 mb-10">
+            <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-8">Rendimiento por álbum este mes</p>
+            {% if rendimiento_albumes %}
+            <div class="space-y-6">
+                {% for album in rendimiento_albumes %}
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <p class="text-white text-sm font-medium">{{ album.Titulo_Album }}</p>
+                            <p class="text-zinc-600 text-[10px]">{{ album.total_streams }} streams válidos</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[#8b5cf6] font-bold text-sm">${{ album.ingresos }}</p>
+                            <p class="text-zinc-700 text-[10px]">estimado</p>
+                        </div>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: {{ album.porcentaje }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-zinc-700 text-sm text-center py-8">Aún no hay reproducciones válidas este mes. ¡Comparte tu música!</p>
+            {% endif %}
+        </div>
+
+        <!-- Historial de liquidaciones -->
+        <div class="glass-card rounded-[2rem] p-8">
+            <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-8">Historial de Liquidaciones</p>
+            <table class="w-full">
+                <thead>
+                    <tr class="text-zinc-600 uppercase text-[10px] tracking-[0.2em] border-b border-white/5">
+                        <th class="pb-4 text-left">Período</th>
+                        <th class="pb-4 text-center">Streams válidos</th>
+                        <th class="pb-4 text-center">Monto</th>
+                        <th class="pb-4 text-right">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for liq in liquidaciones %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-4 text-white text-sm font-medium">{{ liq.Mes_Anio }}</td>
+                        <td class="py-4 text-zinc-400 text-sm text-center">{{ liq.Total_Streams_Validos }}</td>
+                        <td class="py-4 text-[#8b5cf6] font-bold text-sm text-center">${{ liq.Monto_Generado }}</td>
+                        <td class="py-4 text-right">
+                            <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold
+                                {% if liq.Estado_Pago == 'Pagado' %}badge-pagado{% else %}badge-pendiente{% endif %}">
+                                {{ liq.Estado_Pago }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-16 text-center text-zinc-700 text-sm">
+                            No hay liquidaciones registradas aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const meses         = {{ meses_labels|safe }};
+        const ingresosMes   = {{ ingresos_por_mes|safe }};
+        const albumLabels   = {{ albumes_labels|safe }};
+        const albumStreams  = {{ albumes_streams|safe }};
+
+        const tooltipStyle = {
+            backgroundColor: '#0a0a0a',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#a1a1aa',
+            bodyColor: '#ffffff',
+            padding: 12,
+        };
+
+        // Gráfica línea — ingresos por mes
+        if (document.getElementById('chartIngresos')) {
+            new Chart(document.getElementById('chartIngresos'), {
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        data: ingresosMes,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointRadius: 4,
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+                    scales: {
+                        x: { ticks: { color: '#52525b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { ticks: { color: '#52525b', font: { size: 10 }, callback: v => '$' + v }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+        }
+
+        // Gráfica barras — streams por álbum
+        if (document.getElementById('chartAlbumes')) {
+            new Chart(document.getElementById('chartAlbumes'), {
+                type: 'bar',
+                data: {
+                    labels: albumLabels,
+                    datasets: [{
+                        data: albumStreams,
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+                    scales: {
+                        x: { ticks: { color: '#52525b', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#52525b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

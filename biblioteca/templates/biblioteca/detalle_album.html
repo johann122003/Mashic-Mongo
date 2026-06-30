@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ album.Titulo_Album }} | Mashic Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .vinyl-hero { width: 220px; height: 220px; flex-shrink: 0; }
+        .vinyl-hero svg { width: 100%; height: 100%; filter: drop-shadow(0 16px 40px rgba(0,0,0,0.9)); }
+        .song-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            transition: background 0.2s;
+        }
+        .song-row:hover { background: rgba(255,255,255,0.05); }
+        .song-index { width: 20px; text-align: center; font-size: 11px; color: #52525b; flex-shrink: 0; }
+        
+        /* Efecto de Ondas Suaves, Continuas y Difuminadas */
+        .waves-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: 100px; 
+            margin-bottom: 2rem; 
+            background: transparent; 
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+        .wave { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: 0 bottom; transform-origin: center bottom; }
+        .wave1 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%238b5cf6' opacity='0.3'/%3E%3C/svg%3E"); animation: move-waves 15s linear infinite; }
+        .wave2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23d946ef' opacity='0.5'/%3E%3C/svg%3E"); animation: move-waves 10s linear infinite reverse; }
+        .wave3 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23a855f7' opacity='0.8'/%3E%3C/svg%3E"); animation: move-waves 20s linear infinite; }
+        @keyframes move-waves { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    </style>
+</head>
+<body class="bg-[#050505] text-white min-h-screen pb-16 overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <nav class="p-8 flex justify-between items-center max-w-6xl mx-auto mb-4">
+        <div class="flex items-center gap-3">
+          <div class="group relative flex items-center justify-center">
+            <svg class="w-9 h-9 transform transition-transform group-hover:scale-105" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="10" fill="#0A0A0A"/>
+                <rect x="3.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay:0.1s"/>
+                <rect x="9.0" y="6"  width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay:0.2s"/>
+                <rect x="14.5" y="12" width="3" height="12" rx="1.5" fill="#a855f7" class="animate-pulse" style="animation-delay:0.3s"/>
+                <rect x="20.0" y="6"  width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay:0.4s"/>
+                <rect x="25.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay:0.5s"/>
+            </svg>
+            <div class="absolute inset-0 bg-[#8b5cf6]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+            <a href="{% url 'lista_canciones' %}" class="text-lg font-bold tracking-tight hover:text-[#8b5cf6] transition-colors">Mashic<span class="text-[#8b5cf6]">Music</span></a>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Hola, {{ request.session.usuario_nombre }}</span>
+            <a href="{% url 'mi_biblioteca' %}" class="text-zinc-500 hover:text-white transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Mi Biblioteca</a>
+            <a href="{% url 'cerrar_sesion' %}" class="text-zinc-500 hover:text-red-500 transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Salir</a>
+        </div>
+    </nav>
+
+    <!-- Ondas animadas -->
+    <div class="waves-wrapper">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+
+    <div class="container mx-auto max-w-4xl px-6">
+
+        <div class="flex items-center gap-2 mb-10 text-[10px] uppercase tracking-[0.2em]">
+            <a href="{% url 'mi_biblioteca' %}" class="text-zinc-600 hover:text-zinc-400 transition-colors">Mi Biblioteca</a>
+            <span class="text-zinc-700">›</span>
+            <span class="text-zinc-500">{{ album.Titulo_Album }}</span>
+        </div>
+
+        <div class="flex items-end gap-10 mb-12">
+            <div class="vinyl-hero">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="vgH" cx="42%" cy="38%" r="55%">
+                            <stop offset="0%" stop-color="#2a2a2a"/>
+                            <stop offset="40%" stop-color="#111"/>
+                            <stop offset="100%" stop-color="#0a0a0a"/>
+                        </radialGradient>
+                        <radialGradient id="shineH" cx="35%" cy="28%" r="45%">
+                            <stop offset="0%" stop-color="#fff" stop-opacity="0.1"/>
+                            <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="lblH" cx="50%" cy="40%" r="50%">
+                            <stop offset="0%" stop-color="#8b5cf6"/>
+                            <stop offset="60%" stop-color="#a855f7"/>
+                            <stop offset="100%" stop-color="#6d28d9"/>
+                        </radialGradient>
+                    </defs>
+                    <circle cx="100" cy="100" r="96" fill="url(#vgH)"/>
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="#222" stroke-width="0.8"/>
+                    <circle cx="100" cy="100" r="84" fill="none" stroke="#1e1e1e" stroke-width="0.6"/>
+                    <circle cx="100" cy="100" r="78" fill="none" stroke="#222" stroke-width="0.8"/>
+                    <circle cx="100" cy="100" r="72" fill="none" stroke="#1e1e1e" stroke-width="0.6"/>
+                    <circle cx="100" cy="100" r="66" fill="none" stroke="#222" stroke-width="0.7"/>
+                    <circle cx="100" cy="100" r="60" fill="none" stroke="#1e1e1e" stroke-width="0.5"/>
+                    <circle cx="100" cy="100" r="54" fill="none" stroke="#222" stroke-width="0.6"/>
+                    <circle cx="100" cy="100" r="48" fill="none" stroke="#252525" stroke-width="1"/>
+                    <circle cx="100" cy="100" r="32" fill="url(#lblH)"/>
+                    <line x1="78" y1="96" x2="122" y2="96" stroke="#6d28d9" stroke-width="0.8" opacity="0.5"/>
+                    <line x1="78" y1="100" x2="122" y2="100" stroke="#6d28d9" stroke-width="0.8" opacity="0.5"/>
+                    <line x1="78" y1="104" x2="122" y2="104" stroke="#6d28d9" stroke-width="0.8" opacity="0.5"/>
+                    <circle cx="100" cy="100" r="4.5" fill="#050505"/>
+                    <circle cx="100" cy="100" r="96" fill="url(#shineH)"/>
+                </svg>
+            </div>
+            <div class="flex-1 pb-2">
+                <p class="text-zinc-600 text-[10px] uppercase tracking-[0.25em] mb-3">Álbum</p>
+                <h1 class="text-5xl font-bold tracking-tight mb-4 leading-tight">{{ album.Titulo_Album }}</h1>
+                <p class="text-zinc-400 text-sm font-light mb-6">{{ album.Nombre_Artistico }}</p>
+                <p class="text-zinc-600 text-xs">{{ canciones|length }} canción{{ canciones|length|pluralize:"es" }}</p>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-6">
+            <div class="flex items-center gap-4 px-4 pb-3 border-b border-white/5 text-zinc-600 uppercase text-[10px] tracking-[0.2em]">
+                <span class="w-10 flex-shrink-0"></span>
+                <span class="w-6 flex-shrink-0">#</span>
+                <span class="flex-1">Título</span>
+                {% if request.session.usuario_rol == 1 or request.session.usuario_rol == 2 %}
+                <span class="w-28 flex-shrink-0 text-right">Acciones</span>
+                {% endif %}
+            </div>
+
+            {% for cancion in canciones %}
+            <div class="song-row">
+                <img src="{{ cancion.Portada }}" alt="Portada" class="w-10 h-10 rounded-lg object-cover shadow-lg flex-shrink-0">
+                <span class="song-index">{{ forloop.counter }}</span>
+                <a href="{% url 'detalle_cancion_album' cancion.ID_Canto id_album %}"
+                   class="flex-1 text-white text-sm font-medium truncate hover:text-[#a855f7] transition-colors">
+                    {{ cancion.Titulo }}
+                </a>
+                {% if request.session.usuario_rol == 1 or request.session.usuario_rol == 2 %}
+                <div class="flex items-center gap-3 w-28 justify-end flex-shrink-0">
+                    <a href="{% url 'editar_cancion' cancion.ID_Canto %}"
+                       class="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-[#a855f7] transition-colors font-bold whitespace-nowrap">Editar</a>
+                    <a href="{% url 'eliminar_cancion' cancion.ID_Canto %}"
+                       class="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-red-500 transition-colors font-bold whitespace-nowrap"
+                       onclick="return confirm('¿Eliminar esta canción?');">Eliminar</a>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="py-16 text-center text-zinc-600 text-sm">Este álbum no tiene canciones aún.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Canción | Mashic Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="bg-[#050505] text-white font-sans min-h-screen flex items-center justify-center py-10 overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <div class="w-full max-w-lg p-6">
+        <div class="glass-card rounded-[2rem] p-8 shadow-2xl">
+            
+            <div class="text-center mb-8">
+                <div class="mb-4 flex justify-center">
+                    <div class="group relative flex items-center justify-center">
+                        <svg class="w-12 h-12 transform transition-transform group-hover:scale-105" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="10" fill="#0A0A0A"/>
+                            <rect x="3.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay:0.1s"/>
+                            <rect x="9.0" y="6"  width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay:0.2s"/>
+                            <rect x="14.5" y="12" width="3" height="12" rx="1.5" fill="#a855f7" class="animate-pulse" style="animation-delay:0.3s"/>
+                            <rect x="20.0" y="6"  width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay:0.4s"/>
+                            <rect x="25.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay:0.5s"/>
+                        </svg>
+                        <div class="absolute inset-0 bg-[#8b5cf6]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold tracking-tight">Editar <span class="text-[#8b5cf6]">Canción</span></h3>
+                <p class="text-zinc-500 text-sm mt-2 font-light">Cambia el nombre de la canción</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <!-- Campo oculto para saber a dónde regresar -->
+                <input type="hidden" name="id_album_origen" value="{{ id_album_origen }}">
+                <!-- Campos ocultos para mantener álbum y duración sin cambiarlos -->
+                <input type="hidden" name="id_album" value="{{ cancion.Album_ID_Album }}">
+                <input type="hidden" name="duracion" value="{{ cancion.Duracion_Segundos }}">
+
+                <div class="mb-8">
+                    <label class="block text-zinc-400 text-xs uppercase tracking-widest mb-2 ml-1">Título de la Canción</label>
+                    <input type="text" name="titulo" value="{{ cancion.Titulo }}" required 
+                           class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8b5cf6] focus:bg-black transition-colors">
+                </div>
+
+                <div class="flex items-center justify-between mt-8">
+                    {% if id_album_origen %}
+                        <a href="{% url 'detalle_album' id_album_origen %}" class="text-zinc-500 hover:text-white transition-colors text-xs uppercase tracking-widest font-medium">Cancelar</a>
+                    {% else %}
+                        <a href="{% url 'lista_canciones' %}" class="text-zinc-500 hover:text-white transition-colors text-xs uppercase tracking-widest font-medium">Cancelar</a>
+                    {% endif %}
+                    <button type="submit" class="bg-[#8b5cf6] text-white font-bold uppercase tracking-widest text-sm py-3 px-8 rounded-full hover:bg-[#a855f7] transition-all">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+</body>
+</html>

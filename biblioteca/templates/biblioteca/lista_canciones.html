@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mashic Music - Biblioteca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .modal-content { background-color: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 1.5rem !important; color: white !important;}
+        .modal-header { border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
+        .modal-footer { border-top: 1px solid rgba(255,255,255,0.05) !important; }
+        select option { background-color: #0a0a0a; color: white; }
+
+        .waves-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+            transform-origin: center bottom;
+        }
+        .wave1 {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%238b5cf6' opacity='0.3'/%3E%3C/svg%3E");
+            animation: move-waves 15s linear infinite;
+        }
+        .wave2 {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23d946ef' opacity='0.5'/%3E%3C/svg%3E");
+            animation: move-waves 10s linear infinite reverse;
+        }
+        .wave3 {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23a855f7' opacity='0.8'/%3E%3C/svg%3E");
+            animation: move-waves 20s linear infinite;
+        }
+        @keyframes move-waves {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+    </style>
+</head>
+<body class="bg-[#050505] text-white min-h-screen pb-12 overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <nav class="p-8 flex justify-between items-center max-w-6xl mx-auto mb-4">
+        <div class="flex items-center gap-3">
+          <div class="group relative flex items-center justify-center">
+            <svg class="w-9 h-9 transform transition-transform group-hover:scale-105" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="10" fill="#0A0A0A" />
+                <rect x="3.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay: 0.1s;"/>
+                <rect x="9.0" y="6" width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay: 0.2s;"/>
+                <rect x="14.5" y="12" width="3" height="12" rx="1.5" fill="#a855f7" class="animate-pulse" style="animation-delay: 0.3s;"/>
+                <rect x="20.0" y="6" width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay: 0.4s;"/>
+                <rect x="25.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay: 0.5s;"/>
+            </svg>
+          </div>
+            <a href="#" class="text-lg font-bold tracking-tight hover:text-[#8b5cf6] transition-colors">Mashic<span class="text-[#8b5cf6]">Music</span></a>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Hola, {{ request.session.usuario_nombre }}</span>
+            <a href="{% url 'mi_biblioteca' %}" class="text-zinc-500 hover:text-white transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Mi Biblioteca</a>
+            {% if request.session.usuario_rol == 1 %}
+            <a href="{% url 'regalias_admin' %}" class="text-red-500/80 hover:text-red-500 transition-colors uppercase text-[10px] tracking-[0.2em] font-bold">Admin Regalías</a>
+            {% elif request.session.usuario_rol == 2 %}
+            <a href="{% url 'regalias' %}" class="text-zinc-500 hover:text-[#8b5cf6] transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Regalías</a>
+            {% endif %}
+            <a href="{% url 'cerrar_sesion' %}" class="text-zinc-500 hover:text-red-500 transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Salir</a>
+        </div>
+    </nav>
+
+    <div class="waves-wrapper">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+
+    <div class="container mx-auto max-w-6xl px-6">
+        <div class="flex justify-between items-end mb-10">
+            <h2 class="text-5xl font-bold tracking-tight">Biblioteca de Canciones</h2>
+            
+            {% if request.session.usuario_rol == 1 or request.session.usuario_rol == 2 %}
+            <div class="flex gap-4">
+                <a href="{% url 'agregar_album' %}" class="text-[#8b5cf6] hover:text-white transition-colors uppercase text-xs tracking-[0.2em] font-medium flex items-center gap-2">
+                    + Álbum
+                </a>
+                <a href="{% url 'agregar_cancion' %}" class="text-[#8b5cf6] hover:text-white transition-colors uppercase text-xs tracking-[0.2em] font-medium flex items-center gap-2">
+                    + Agregar Nueva Canción
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-6 relative max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text" id="buscadorCanciones" class="w-full bg-black/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white focus:border-[#8b5cf6] outline-none transition-colors placeholder-zinc-600 text-sm" placeholder="Buscar por canción, artista o álbum...">
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-8 shadow-2xl">
+            <table class="w-full table-fixed border-collapse">
+                <thead>
+                    <tr class="text-zinc-500 uppercase text-[10px] tracking-[0.2em] border-b border-white/10">
+                        <th class="px-4 py-4 w-24 text-center">Portada</th>
+                        <th class="px-4 py-4 w-auto text-left">Título</th>
+                        <th class="px-4 py-4 w-32 text-left">Artista</th>
+                        <th class="px-4 py-4 w-48 text-left">Álbum</th>
+                        <th class="px-4 py-4 w-64 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCanciones">
+                    {% for cancion in canciones %}
+                    <tr class="fila-cancion border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="px-4 py-3 text-center">
+                            <img src="{{ cancion.Portada }}" alt="Portada" class="w-10 h-10 rounded shadow-lg object-cover inline-block" loading="lazy">
+                        </td>
+                        <td class="px-4 py-3 font-medium text-white truncate">
+                            <a href="{% url 'detalle_cancion' cancion.ID_Canto %}" class="hover:text-[#a855f7] transition-colors pointer-events-auto block truncate">
+                                {{ cancion.Titulo }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 text-zinc-500 font-light text-sm truncate">{{ cancion.Nombre_Artistico }}</td>
+                        <td class="px-4 py-3 text-zinc-500 font-light text-sm truncate">{{ cancion.Titulo_Album }}</td>
+                        <td class="px-4 py-3 flex justify-end items-center gap-4">
+                            {% if request.session.usuario_rol == 1 or request.session.usuario_rol == 2 and request.session.usuario_id == cancion.Usuario_Mashi_ID_Mashi %}
+                                <a href="{% url 'editar_cancion' cancion.ID_Canto %}" class="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-[#a855f7] transition-colors font-bold whitespace-nowrap">Editar</a>
+                                <a href="{% url 'eliminar_cancion' cancion.ID_Canto %}" class="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-red-500 transition-colors font-bold whitespace-nowrap" onclick="return confirm('¿Estás seguro?');">Eliminar</a>
+                            {% else %}
+                                <span class="text-[10px] uppercase tracking-widest text-zinc-700 whitespace-nowrap">Solo Escuchar</span>
+                            {% endif %}
+                            {% if request.session.usuario_id %}
+                                <button type="button" class="text-[11px] uppercase tracking-widest text-[#8b5cf6] hover:text-[#a855f7] transition-colors font-bold whitespace-nowrap" data-bs-toggle="modal" data-bs-target="#modalPlaylist{{ cancion.ID_Canto }}">
+                                    + A LISTA
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="p-12 text-center text-zinc-500 font-light">No hay canciones registradas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% for cancion in canciones %}
+    {% if request.session.usuario_id %}
+    <div class="modal fade" id="modalPlaylist{{ cancion.ID_Canto }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="POST" action="{% url 'agregar_a_playlist' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_canto" value="{{ cancion.ID_Canto }}">
+                    <div class="p-6">
+                        <h5 class="text-white font-bold text-lg mb-1">Agregar a Playlist</h5>
+                        <p class="text-zinc-500 text-sm mb-6 truncate">{{ cancion.Titulo }}</p>
+                        {% if playlists_usuario %}
+                            <label class="block text-zinc-400 text-xs uppercase tracking-widest mb-3">Elige una playlist</label>
+                            <select name="id_playlist" class="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#8b5cf6] outline-none">
+                                {% for pl in playlists_usuario %}
+                                <option value="{{ pl.ID_Playlist }}">{{ pl.Nombre_Playlist }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-zinc-500 text-sm mb-4">Aún no tienes playlists.</p>
+                                <a href="{% url 'mi_biblioteca' %}" class="text-[#8b5cf6] hover:text-[#a855f7] text-xs uppercase tracking-widest">Crear una playlist →</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if playlists_usuario %}
+                    <div class="px-6 pb-6">
+                        <button type="submit" class="w-full bg-[#8b5cf6] text-white font-bold uppercase tracking-widest text-xs py-3 rounded-full hover:bg-[#a855f7] transition-colors">
+                            Agregar
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('buscadorCanciones').addEventListener('keyup', function(e) {
+            const textoBusqueda = e.target.value.toLowerCase();
+            const filas = document.querySelectorAll('#tablaCanciones .fila-cancion');
+            filas.forEach(fila => {
+                fila.style.display = fila.textContent.toLowerCase().includes(textoBusqueda) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

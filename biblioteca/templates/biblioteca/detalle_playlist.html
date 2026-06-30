@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ nombre_playlist }} | Mashic Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Efecto de Ondas Suaves, Continuas y Difuminadas */
+        .waves-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: 100px; 
+            margin-bottom: 2rem; 
+            background: transparent; 
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+        .wave { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: 0 bottom; transform-origin: center bottom; }
+        .wave1 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%238b5cf6' opacity='0.3'/%3E%3C/svg%3E"); animation: move-waves 15s linear infinite; }
+        .wave2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23d946ef' opacity='0.5'/%3E%3C/svg%3E"); animation: move-waves 10s linear infinite reverse; }
+        .wave3 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23a855f7' opacity='0.8'/%3E%3C/svg%3E"); animation: move-waves 20s linear infinite; }
+        @keyframes move-waves { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    </style>
+</head>
+<body class="bg-[#050505] text-white min-h-screen overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <nav class="p-8 flex justify-between items-center max-w-5xl mx-auto">
+        <div class="flex items-center gap-3">
+            <div class="group relative flex items-center justify-center">
+                <svg class="w-9 h-9 transform transition-transform group-hover:scale-105" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="10" fill="#0A0A0A" />
+                    <rect x="3.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay: 0.1s;"/>
+                    <rect x="9.0" y="6" width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay: 0.2s;"/>
+                    <rect x="14.5" y="12" width="3" height="12" rx="1.5" fill="#a855f7" class="animate-pulse" style="animation-delay: 0.3s;"/>
+                    <rect x="20.0" y="6" width="3" height="18" rx="1.5" fill="#d946ef" class="animate-pulse" style="animation-delay: 0.4s;"/>
+                    <rect x="25.5" y="14" width="3" height="10" rx="1.5" fill="#8b5cf6" class="animate-pulse" style="animation-delay: 0.5s;"/>
+                </svg>
+            </div>
+            <a href="{% url 'lista_canciones' %}" class="text-lg font-bold tracking-tight hover:text-[#8b5cf6] transition-colors">Mashic<span class="text-[#8b5cf6]">Music</span></a>
+        </div>
+        <div class="flex items-center gap-6">
+            <a href="{% url 'mi_biblioteca' %}" class="text-zinc-500 hover:text-white transition-colors uppercase text-[10px] tracking-[0.2em] font-medium"> Mis Listas</a>
+        </div>
+    </nav>
+
+    <!-- Ondas animadas -->
+    <div class="waves-wrapper">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+
+    <div class="container mx-auto max-w-5xl px-6">
+        
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <p class="text-zinc-500 text-sm font-light uppercase tracking-widest mb-1">Playlist</p>
+                <h2 class="text-5xl font-bold tracking-tight">{{ nombre_playlist }}</h2>
+            </div>
+            
+            <a href="{% url 'eliminar_playlist' id_playlist %}" 
+               class="text-red-500/80 hover:text-red-500 transition-colors uppercase text-xs tracking-[0.2em] font-medium flex items-center gap-2"
+               onclick="return confirm('¿Seguro que quieres borrar toda la lista?');">
+               <span>Eliminar Lista</span>
+            </a>
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-8">
+            <table class="w-full table-fixed border-collapse">
+                <thead>
+                    <tr class="text-zinc-500 uppercase text-[10px] tracking-[0.2em] border-b border-white/10">
+                        <th class="px-4 py-4 w-12 text-center">#</th>
+                        <th class="px-4 py-4 w-24 text-center">Portada</th>
+                        <th class="px-4 py-4 w-auto text-left">Título</th>
+                        <th class="px-4 py-4 w-32 text-left">Artista</th>
+                        <th class="px-4 py-4 w-48 text-left">Álbum</th>
+                        <th class="px-4 py-4 w-32 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cancion in canciones %}
+                    <tr class="group border-b border-white/5 hover:bg-white/5 transition-colors">
+                        
+                        <td class="px-4 py-3 text-zinc-600 font-light text-center">{{ forloop.counter }}</td>
+                        
+                        <td class="px-4 py-3 text-center">
+                            <img src="{{ cancion.Portada }}" alt="Portada" class="w-10 h-10 rounded shadow-lg object-cover inline-block" loading="lazy">
+                        </td>
+                        
+                        <td class="px-4 py-3 font-medium text-white truncate">
+                            <a href="{% url 'detalle_cancion' cancion.ID_Canto id_playlist %}" class="hover:text-[#a855f7] transition-colors pointer-events-auto block truncate">
+                                {{ cancion.Titulo }}
+                            </a>
+                        </td>
+                        
+                        <td class="px-4 py-3 text-zinc-500 font-light text-sm truncate">{{ cancion.Nombre_Artistico }}</td>
+                        
+                        <td class="px-4 py-3 text-zinc-500 font-light text-sm truncate">{{ cancion.Titulo_Album }}</td>
+                        
+                        <td class="px-4 py-3 flex justify-end items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="{% url 'eliminar_de_playlist' id_playlist cancion.ID_Canto %}" 
+                               class="text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-red-500 transition-colors whitespace-nowrap"
+                               onclick="return confirm('¿Quitar esta canción de la playlist?');">
+                               Quitar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="p-12 text-center text-zinc-500 font-light">
+                            Esta playlist está vacía. ¡Ve a la biblioteca y agrega algunas canciones!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

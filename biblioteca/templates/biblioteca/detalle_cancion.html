@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cancion.Titulo }} | Mashic Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .border-light-fx { position: relative; border-radius: 1.25rem; overflow: hidden; padding: 3px; isolation: isolate; }
+        .border-light-fx::before { content: ''; position: absolute; top: 50%; left: 50%; width: 150%; height: 150%; background: conic-gradient(from 0deg, transparent 70%, rgba(255, 255, 255, 0.2) 90%, rgba(255, 255, 255, 1) 100%); animation: spin 3s linear infinite; z-index: -2; }
+        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        input[type=range] { accent-color: #8b5cf6; cursor: pointer; }
+    </style>
+</head>
+<body class="bg-[#050505] text-white min-h-screen flex items-center justify-center overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <div class="glass-card relative w-full max-w-sm p-8 rounded-[2rem] shadow-2xl text-center border border-white/10">
+
+        <div class="mb-8 w-56 h-56 mx-auto border-light-fx shadow-2xl">
+            <img src="{{ cancion.Portada }}" class="w-full h-full object-cover rounded-[1rem]">
+        </div>
+        
+        <h2 class="text-2xl font-bold tracking-tight">{{ cancion.Titulo }}</h2>
+        <p class="text-zinc-400 text-sm mb-6 font-light">{{ cancion.Nombre_Artistico }}</p>
+
+        <div class="w-full mb-6">
+            <input type="range" id="seekSlider" value="0" class="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none">
+            <div class="flex justify-between text-[10px] text-zinc-500 mt-2 font-mono">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="flex justify-center items-center gap-8 mb-8">
+
+            {% if prev_id %}
+                {% if id_album %}
+                    <a href="{% url 'detalle_cancion_album' prev_id id_album %}" class="text-zinc-400 hover:text-white transition">
+                {% elif id_playlist %}
+                    <a href="{% url 'detalle_cancion' prev_id id_playlist %}" class="text-zinc-400 hover:text-white transition">
+                {% else %}
+                    <a href="{% url 'detalle_cancion' prev_id %}" class="text-zinc-400 hover:text-white transition">
+                {% endif %}
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </a>
+            {% else %}
+                <div class="text-zinc-800"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></div>
+            {% endif %}
+
+            <button id="btnPlay" class="w-16 h-16 bg-white rounded-full text-black flex items-center justify-center hover:bg-[#8b5cf6] hover:text-white transition duration-300 shadow-lg">
+                <svg id="iconPlay" class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="iconPause" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+
+            {% if next_id %}
+                {% if id_album %}
+                    <a href="{% url 'detalle_cancion_album' next_id id_album %}" class="text-zinc-400 hover:text-white transition">
+                {% elif id_playlist %}
+                    <a href="{% url 'detalle_cancion' next_id id_playlist %}" class="text-zinc-400 hover:text-white transition">
+                {% else %}
+                    <a href="{% url 'detalle_cancion' next_id %}" class="text-zinc-400 hover:text-white transition">
+                {% endif %}
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </a>
+            {% else %}
+                <div class="text-zinc-800"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></div>
+            {% endif %}
+
+        </div>
+
+        <a href="{{ back_url }}" class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 hover:text-[#8b5cf6] transition">
+            {% if id_album %}Volver al álbum{% elif id_playlist %}Volver a la playlist{% else %}Volver a la biblioteca{% endif %}
+        </a>
+    </div>
+
+    <script>
+        const iconPlay  = document.getElementById('iconPlay');
+        const iconPause = document.getElementById('iconPause');
+
+        // Control de stream válido
+        let reproduccionRegistrada = false;
+        const ID_CANTO   = {{ cancion.ID_Canto }};
+        const CSRF_TOKEN = '{{ csrf_token }}';
+
+        const sound = new Howl({
+            src: ['/media/{{ cancion.Ruta_Archivo }}'],
+            html5: true,
+            onload: function() {
+                document.getElementById('totalTime').innerText = formatTime(Math.round(sound.duration()));
+            },
+            onplay: () => {
+                iconPlay.classList.add('hidden');
+                iconPause.classList.remove('hidden');
+            },
+            onpause: () => {
+                iconPause.classList.add('hidden');
+                iconPlay.classList.remove('hidden');
+            },
+            onend: () => {
+                iconPause.classList.add('hidden');
+                iconPlay.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('btnPlay').onclick = () => sound.playing() ? sound.pause() : sound.play();
+        document.getElementById('seekSlider').oninput = (e) => sound.seek(sound.duration() * (e.target.value / 100));
+
+        setInterval(() => {
+            if (sound.playing()) {
+                const currentSeek = sound.seek();
+                document.getElementById('seekSlider').value = (currentSeek / sound.duration()) * 100;
+                document.getElementById('currentTime').innerText = formatTime(Math.round(currentSeek));
+
+                if (!reproduccionRegistrada && Math.floor(currentSeek) >= 30) {
+                    reproduccionRegistrada = true;
+                    fetch('/registrar-reproduccion/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': CSRF_TOKEN
+                        },
+                        body: `id_canto=${ID_CANTO}&segundos=${Math.floor(currentSeek)}`
+                    });
+                }
+            }
+        }, 1000);
+
+        function formatTime(secs) {
+            const minutes = Math.floor(secs / 60) || 0;
+            const seconds = (secs - minutes * 60) || 0;
+            return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        }
+    </script>
+</body>
+</html>

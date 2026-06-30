@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Regalías | Mashic Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .glass-card { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 1.5rem; padding: 1.5rem; }
+        
+        /* Badges de estado (se mantienen semánticos) */
+        .badge-pendiente { background: rgba(234,179,8,0.15); color: #EAB308; border: 1px solid rgba(234,179,8,0.3); }
+        .badge-pagado { background: rgba(34,197,94,0.15); color: #22C55E; border: 1px solid rgba(34,197,94,0.3); }
+        
+        /* Progress bar morada */
+        .progress-bar-bg { background: rgba(255,255,255,0.06); border-radius: 999px; height: 4px; }
+        .progress-bar-fill { background: linear-gradient(90deg, #8b5cf6, #d946ef); border-radius: 999px; height: 4px; transition: width 1s ease; }
+
+        /* Efecto de Ondas Suaves, Continuas y Difuminadas */
+        .waves-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: 100px; 
+            margin-bottom: 2rem; 
+            background: transparent; 
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+        .wave { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: 0 bottom; transform-origin: center bottom; }
+        .wave1 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%238b5cf6' opacity='0.3'/%3E%3C/svg%3E"); animation: move-waves 15s linear infinite; }
+        .wave2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23d946ef' opacity='0.5'/%3E%3C/svg%3E"); animation: move-waves 10s linear infinite reverse; }
+        .wave3 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-359.8-50C286.2 6.9 236.7 56.9 81.3 56.9 0 56.9 0 56.9 0 56.9v31.8h800V56.9s-8.1 0-800 0z' fill='%23a855f7' opacity='0.8'/%3E%3C/svg%3E"); animation: move-waves 20s linear infinite; }
+        @keyframes move-waves { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    </style>
+</head>
+<body class="bg-[#050505] text-white min-h-screen pb-16 overflow-x-hidden">
+
+    <div class="fixed inset-0 overflow-hidden -z-10">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black"></div>
+    </div>
+
+    <nav class="p-8 flex justify-between items-center max-w-6xl mx-auto mb-4">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'lista_canciones' %}" class="text-lg font-bold tracking-tight hover:text-[#8b5cf6] transition-colors">Mashic<span class="text-[#8b5cf6]">Music</span> <span class="text-xs text-red-500 ml-2">ADMIN</span></a>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Hola, {{ request.session.usuario_nombre }}</span>
+            <a href="{% url 'cerrar_sesion' %}" class="text-zinc-500 hover:text-red-500 transition-colors uppercase text-[10px] tracking-[0.2em] font-medium">Salir</a>
+        </div>
+    </nav>
+
+    <!-- Ondas animadas -->
+    <div class="waves-wrapper">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+
+    <div class="container mx-auto max-w-6xl px-6">
+
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <p class="text-zinc-600 text-[10px] uppercase tracking-[0.25em] mb-2">Administración Global</p>
+                <h1 class="text-5xl font-bold tracking-tight">Finanzas & Regalías</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-zinc-600 text-xs mb-1">Costo por stream (Platform)</p>
+                <p class="text-[#8b5cf6] text-2xl font-bold">$0.005</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+            <div class="stat-card">
+                <p class="text-zinc-600 text-[10px] uppercase tracking-widest mb-3">Total Streams Globales</p>
+                <p class="text-4xl font-bold text-white">{{ streams_totales_mes }}</p>
+                <p class="text-zinc-600 text-xs mt-2">reproducciones válidas (Mes actual)</p>
+            </div>
+            <div class="stat-card border-[#8b5cf6]/30">
+                <p class="text-[#8b5cf6]/80 text-[10px] uppercase tracking-widest mb-3">Total a Pagar a Artistas</p>
+                <p class="text-4xl font-bold text-[#8b5cf6]">${{ total_a_pagar_mes }}</p>
+                <p class="text-zinc-600 text-xs mt-2">obligaciones de este mes</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-zinc-600 text-[10px] uppercase tracking-widest mb-3">Histórico Pagado</p>
+                <p class="text-4xl font-bold text-white">${{ total_historico_plataforma }}</p>
+                <p class="text-zinc-600 text-xs mt-2">todas las liquidaciones emitidas</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <div class="glass-card rounded-[2rem] p-8">
+                <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-6">Salida de capital por mes</p>
+                <div class="relative" style="height:220px">
+                    <canvas id="chartPagos"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-[2rem] p-8">
+                <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-6">Top Artistas este mes</p>
+                <div class="relative" style="height:220px">
+                    <canvas id="chartTopArtistas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-8 mb-10">
+            <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-8">Nómina de Artistas - {{ mes_actual }}</p>
+            {% if rendimiento_artistas %}
+            <div class="space-y-6">
+                {% for artista in rendimiento_artistas %}
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <p class="text-white text-sm font-medium text-lg">{{ artista.Nombre_Artistico }}</p>
+                            <p class="text-zinc-600 text-[10px]">{{ artista.total_streams }} streams generados</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[#8b5cf6] font-bold text-sm text-lg">${{ artista.monto_a_pagar }}</p>
+                            <p class="text-zinc-700 text-[10px]">a depositar</p>
+                        </div>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: {{ artista.porcentaje }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-zinc-700 text-sm text-center py-8">No hay actividad de artistas este mes.</p>
+            {% endif %}
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-8">
+            <p class="text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-8">Últimas 50 transacciones globales</p>
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="text-zinc-600 uppercase text-[10px] tracking-[0.2em] border-b border-white/5">
+                        <th class="pb-4 text-left">Artista</th>
+                        <th class="pb-4 text-left">Período</th>
+                        <th class="pb-4 text-center">Streams</th>
+                        <th class="pb-4 text-center">Monto</th>
+                        <th class="pb-4 text-right">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for liq in liquidaciones_globales %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-4 text-white text-sm font-bold">{{ liq.Nombre_Artistico }}</td>
+                        <td class="py-4 text-zinc-400 text-sm">{{ liq.Mes_Anio }}</td>
+                        <td class="py-4 text-zinc-400 text-sm text-center">{{ liq.Total_Streams_Validos }}</td>
+                        <td class="py-4 text-[#8b5cf6] font-bold text-sm text-center">${{ liq.Monto_Generado }}</td>
+                        <td class="py-4 text-right">
+                            <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold
+                                {% if liq.Estado_Pago == 'Pagado' %}badge-pagado{% else %}badge-pendiente{% endif %}">
+                                {{ liq.Estado_Pago }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-16 text-center text-zinc-700 text-sm">
+                            No hay liquidaciones emitidas en la plataforma.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const mesesGlobales    = {{ meses_labels|safe }};
+        const pagosGlobales    = {{ pagos_por_mes|safe }};
+        const artistasLabels   = {{ artistas_labels|safe }};
+        const artistasStreams  = {{ artistas_streams|safe }};
+
+        const tooltipStyle = {
+            backgroundColor: '#0a0a0a',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#a1a1aa',
+            bodyColor: '#ffffff',
+            padding: 12,
+        };
+
+        // Gráfica línea — Salida de capital por mes
+        if (document.getElementById('chartPagos')) {
+            new Chart(document.getElementById('chartPagos'), {
+                type: 'line',
+                data: {
+                    labels: mesesGlobales,
+                    datasets: [{
+                        data: pagosGlobales,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointRadius: 4,
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+                    scales: {
+                        x: { ticks: { color: '#52525b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { ticks: { color: '#52525b', font: { size: 10 }, callback: v => '$' + v }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+        }
+
+        // Gráfica barras — Top Artistas
+        if (document.getElementById('chartTopArtistas')) {
+            new Chart(document.getElementById('chartTopArtistas'), {
+                type: 'bar',
+                data: {
+                    labels: artistasLabels,
+                    datasets: [{
+                        data: artistasStreams,
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: tooltipStyle },
+                    scales: {
+                        x: { ticks: { color: '#52525b', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#52525b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
