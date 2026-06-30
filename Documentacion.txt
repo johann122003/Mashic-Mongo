@@ -1,0 +1,32 @@
+Estructura del Proyecto
+
+biblioteca/: Es la aplicación principal donde reside toda la lógica del sistema.
+
+mongo_con.py: Archivo de configuración y conexión directa con la base de datos MongoDB.
+
+spotify_utils.py: Funciones de utilidad para el manejo de datos musicales.
+
+views.py y urls.py: Controladores y rutas de la aplicación.
+
+templates/biblioteca/: Interfaz gráfica del proyecto. Incluye las siguientes vistas:
+
+Autenticación: login.html, registro.html.
+
+Gestión de contenido: agregar_cancion.html, agregar_album.html, editar_cancion.html.
+
+Navegación y visualización: lista_canciones.html, detalle_cancion.html, detalle_album.html, detalle_playlist.html, mi_biblioteca.html.
+
+Administración: regalias.html, regalias_admin.html.
+
+
+config/: Carpeta de configuración principal del proyecto Django (settings, urls principales, etc.).
+
+
+media/canciones/: Directorio destinado a almacenar los archivos de audio en formato .mp3 de la plataforma.
+
+manage.py: Archivo principal de ejecución y administración de Django.
+
+Requisitos
+Para ejecutar este proyecto de forma local, asegúrate de tener configurado tu entorno virtual y de iniciar el servidor de desarrollo utilizando el archivo de administración
+
+python manage.py runserver
